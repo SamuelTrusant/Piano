@@ -10,14 +10,16 @@ String [] notesS={"A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "A#4"};
 boolean [] keys = {false,false,false,false,false,false,false,false,false,false};
 
 //canción piratas del caribe
-int[] song = {0,2,3,3,3,4,5,5,5,6,4,4,3,2,2,3};
-int[] notesDuration = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+int[] song = {0,2,3,3,3,4,5,5,5,6,4,4,3,2,2,3,0,2,3,3,3,4,5,5,5,6,4,4,3,2,3,0,2,3,3,3,5,6,6,6,7,8,8,7,6,7,3,3,4,5,5,6,7,3,4,5,4,4,3,2,3,4,5,7,8,7,8,7,7,7,7,8,7,6,6,6,6,7,7,7,7,8,7,6,5,4,3,3,4,5,6,7,6,5,4,5,6,7,6,5,6,7,6,5,4,5,4,3,3,4,2,3,3,4,5,4,5,6,5,6,7,6,5,3,3,4,5,6,7,8,3,4,5,4,4,3,2,3,4,5,7,8,7,7,7,7,6,6,5,4,5,4,3,7,8,7,7,7,7,6,6,5,4,5,4,3,0,0};//las dos ultimas dan igual
+
+boolean waiting = false;
+int currentKey = song[0];
 
 int framesPerBeat = 50;
 int frame = 0;
 int framesPerStep = 30;
 float originNotePos = -500;
-int step = -5;
+int step = -1;
 int posy = 0;
 int distancePerStep = 5;
 int distancePerBeat = 10;
@@ -108,11 +110,13 @@ void draw() {
   } else {
     circle(30,30,40);
   }
-  
+  for(Note note : notes){
+      rect(note.posx,note.posy,note.sizex,note.sizey);
+  }
+  if(waiting == false){
   //dibujamos las notas en pantalla
   for (Note note : notes){
-      rect(note.posx,note.posy,note.sizex,note.sizey);
-      note.move(1300/framesPerBeat);
+      note.move((height-originNotePos-200)/framesPerBeat);
   }
   if(step < 1){
     text(""+abs(step),width/2,height/2);
@@ -130,18 +134,21 @@ void draw() {
         currentDuration++;
         if(step == -1){
           step++;
-          notes.add(new Note(song[step]*50.,originNotePos,50.,notesDuration[step]));
+          notes.add(new Note(song[step]*50.,originNotePos,50.,1));
         } else{
           if(currentDuration >= notes.get(step).beats){
             step++;
-            notes.add(new Note(song[step]*50.,originNotePos,50.,notesDuration[step]));
+            notes.add(new Note(song[step]*50.,originNotePos,50.,1));
             currentDuration = 0;
+            currentKey = song[step-1];
+            waiting = true;
           }
         }
       }
     }
   }
   frame++;
+  }
 }
 
 void mousePressed() {
@@ -154,51 +161,52 @@ void mousePressed() {
 }
 
 void keyPressed(){
-  int tecla = -1;
+  int keyPresed = -1;
   switch(key){
     case 'a':
-      tecla = 0;
+      keyPresed = 0;
       break;
     case 's':
-      tecla = 1;
+      keyPresed = 1;
       break;
     case 'd':
-      tecla = 2;
+      keyPresed = 2;
       break;
     case 'f':
-      tecla = 3;
+      keyPresed = 3;
       break;
     case 'g':
-      tecla = 4;
+      keyPresed = 4;
       break;
     case 'h':
-      tecla = 5;
+      keyPresed = 5;
       break;
     case 'j':
-      tecla = 6;
+      keyPresed = 6;
       break;
     case 'k':
-      tecla = 7;
+      keyPresed = 7;
       break;
     case 'l':
-      tecla = 8;
+      keyPresed = 8;
       break;
     case 'r':
       resetSong();
       break;
   }
   if (keyCode == UP) {
-    framesPerBeat+=10;
+    framesPerBeat+=5;
   }
   if (keyCode == DOWN) {
-    if(framesPerBeat >10){
-      framesPerBeat-=10;
+    if(framesPerBeat >5){
+      framesPerBeat-=5;
     }
   }
     
-  if (tecla >= 0 && tecla < 9){
-    keys[tecla]= true;
-    out.playNote( 0.0, 0.9, new SineInstrument( Frequency.ofPitch( notesS[tecla] ).asHz() ) );  
+  if (keyPresed >= 0 && keyPresed < 9){
+    keys[keyPresed]= true;
+    out.playNote( 0.0, 0.9, new SineInstrument( Frequency.ofPitch( notesS[keyPresed] ).asHz() ) );
+    if(keyPresed == currentKey) waiting = false;
   }
 }
 
@@ -212,5 +220,6 @@ void resetSong(){
   frame = 0;
   step = -5;
   notes.clear();
+  waiting = false;
   //notes.add(new Note(song[0]*50.,originNotePos,50.,notesDuration[0]));
 }
