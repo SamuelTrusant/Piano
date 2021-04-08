@@ -6,12 +6,13 @@ Minim minim;
 AudioOutput out;
 
 //Notas musicales en notación anglosajona
-String [] notesS={"A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "A#4"};
-boolean [] keys = {false,false,false,false,false,false,false,false,false,false};
+//String [] notesS={"A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "B4", "G#3", "A#3", "", "C#4", "D#4", "", "F#4", "G#4", "A#4"};
+String [] notesS={"G3", "A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "F#3", "G#3", "A#3", "", "C#4", "D#4", "", "F#4", "G#4", "A#4"};
+boolean [] keys = new boolean[notesS.length];
 
 //canción piratas del caribe
-int[] song = {0,2,3,3,3,4,5,5,5,6,4,4,3,2,2,3,0,2,3,3,3,4,5,5,5,6,4,4,3,2,3,0,2,3,3,3,5,6,6,6,7,8,8,7,6,7,3,3,4,5,5,6,7,3,4,5,4,4,3,2,3,4,5,7,8,7,8,7,7,7,7,8,7,6,6,6,6,7,7,7,7,8,7,6,5,4,3,3,4,5,6,7,6,5,4,5,6,7,6,5,6,7,6,5,4,5,4,3,3,4,2,3,3,4,5,4,5,6,5,6,7,6,5,3,3,4,5,6,7,8,3,4,5,4,4,3,2,3,4,5,7,8,7,7,7,7,6,6,5,4,5,4,3,7,8,7,7,7,7,6,6,5,4,5,4,3,0,0};//las dos ultimas dan igual
-
+int[] song =   {1,3,4,4,4,5,6,6,6,7,5,5,4,3,3,4,1,3,4,4,4,5,6,6,6,7,5,5,4,3,4,1,3,4,4,4,6,7,7,7,8,18,18,8,7,6,4,4,5,6,6,7,8,4,5,6,5,5,4,3,4,5,6,8,18,8,18,8,8,8,8,9,8,7,7,7,7,8,8,8,8,9,8,7,6,5,4,4,5,6,7,8,7,6,5,6,7,8,7,6,7,8,7,6,5,6,5,4,4,5,3,4,4,5,6,5,6,7,6,7,8,7,6,4,4,3,6,7,8,9,4,5,6,5,5,4,3,4,5,6,8,9,8,8,8,8,7,7,6,5,6,5,4,8,9,8,8,8,8,7,7,6,5,6,5,4,1,1};
+  
 boolean waiting = false;
 int currentKey = song[0];
 
@@ -19,12 +20,16 @@ int framesPerBeat = 50;
 int frame = 0;
 int framesPerStep = 30;
 float originNotePos = -500;
-int step = -1;
+int step = -5;
 int posy = 0;
 int distancePerStep = 5;
 int distancePerBeat = 10;
 
 int currentDuration = 0;
+
+boolean freeMode = false;
+
+PImage background;
 
 class Note{
   float posx;
@@ -32,12 +37,14 @@ class Note{
   float sizex;
   float sizey;
   int beats;
-  Note(float posx, float posy, float sizex, int beats){
+  boolean white;
+  Note(float posx, float posy, float sizex, int beats, boolean white){
     this.posx = posx;
     this.posy = posy;
     this.sizex = sizex;
     this.beats = beats;
     this.sizey = beats*100;
+    this.white = white;
   }
   
   void move(float distance){
@@ -79,23 +86,28 @@ class SineInstrument implements Instrument
   }
 }
 
+
 void setup()
 {
-  size(450, 800);
+  size(450, 700);
+  background = loadImage("mar.jpg");
   
   minim = new Minim(this);
   
   // Línea de salida
   out = minim.getLineOut();
   
-  //notes.add(new Note(song[0]*50.,originNotePos,50.,notesDuration[0]));
+  for(int i = 0; i < keys.length; i++){
+     keys[i] = false;
+  }
 }
 
 void draw() {
   background(100);
+  image(background,0,0);
   posy++;
   
-  //Dibujamos las celdas/teclas
+  //Dibujamos las celdas/teclas blancas
   for (int i=0;i<9;i++){
     if(keys[i] == true){
       fill(150);
@@ -103,54 +115,91 @@ void draw() {
       fill(250);
     }
     rect(i*50,height-100,50,100);
+    textAlign(CENTER);
+    fill(0);
+    text(notesS[i],i*50+25, height - 20);
+    fill(250);
   }
   
+  //Dibujamos las celdas/teclas negras
+  for (int i=9;i<notesS.length;i++){
+    if(keys[i] == true){
+      fill(150);
+    } else {
+      fill(0);
+    }
+    if(i != 12 && i!= 15 && i!=18){
+      rect((i%9)*50-15,height-100,30,60);
+      textAlign(CENTER);
+      fill(250);
+      text(notesS[i],(i%9)*50, height - 60);
+    }
+    if(i==18){
+      rect(width-15,height-100,30,60);
+      textAlign(CENTER);
+      fill(250);
+      text(notesS[i],width, height - 60);
+    }
+    fill(250);
+  }
+  
+  //beat de referencia
+  /*
   if(frame%framesPerBeat > -3 && frame%framesPerBeat < 3){
     circle(30,30,80);
   } else {
     circle(30,30,40);
-  }
+  }*/
+  
+  if(freeMode == true)return;
+  //dibujamos las notas en pantalla
   for(Note note : notes){
       rect(note.posx,note.posy,note.sizex,note.sizey);
+      if(waiting == false)  note.move((height-originNotePos-200)/framesPerBeat);
   }
-  if(waiting == false){
-  //dibujamos las notas en pantalla
-  for (Note note : notes){
-      note.move((height-originNotePos-200)/framesPerBeat);
-  }
-  if(step < 1){
-    text(""+abs(step),width/2,height/2);
-  }
-  //antes de empezar la canción
-  if(step < -1){
-    //text(""+abs(step),width/2,height/2);
-      if(frame%framesPerBeat == 0){
-        step++;
-      }
-  } else {
-    //durante la canción
-    if(step < song.length-1){      
-      if(frame%framesPerBeat == 0){
-        currentDuration++;
-        if(step == -1){
+  if(waiting == false){  
+    //cuenta atrás para que empieze la canción
+    if(step < 1){
+      text(""+abs(step),width/2,height/2);
+    }
+    //antes de empezar la canción
+    if(step < -1){
+        if(frame%framesPerBeat == 0){
           step++;
-          notes.add(new Note(song[step]*50.,originNotePos,50.,1));
-        } else{
-          if(currentDuration >= notes.get(step).beats){
+        }
+    } else {
+      //durante la canción
+      if(step < song.length-1){      
+        if(frame%framesPerBeat == 0){
+          currentDuration++;
+          if(step == -1){
             step++;
-            notes.add(new Note(song[step]*50.,originNotePos,50.,1));
-            currentDuration = 0;
-            currentKey = song[step-1];
-            waiting = true;
+            notes.add(new Note(song[step]*50.,originNotePos,50.,1,true));
+          } else{
+            if(currentDuration >= notes.get(step).beats){
+              step++;
+              if(song[step] >= 9){
+                if(song[step] == 18){
+                  notes.add(new Note(width-15,originNotePos,30.,1,false));
+                } else {
+                  notes.add(new Note((song[step]%9)*50.-15,originNotePos,30.,1,false));
+                }
+              } else {
+                notes.add(new Note(song[step]*50.,originNotePos,50.,1,true));
+              }
+              currentDuration = 0;
+              currentKey = song[step-1];
+              waiting = true;
+            }
           }
         }
       }
     }
-  }
-  frame++;
+    frame++;
   }
 }
 
+/*
 void mousePressed() {
   //Nota en función del valor de mouseX
   int tecla=(int)(mouseX/50);
@@ -158,7 +207,7 @@ void mousePressed() {
   
   //Primeros dos parámetros, tiempo y duración
   out.playNote( 0.0, 0.9, new SineInstrument( Frequency.ofPitch( notesS[tecla] ).asHz() ) );  
-}
+}*/
 
 void keyPressed(){
   int keyPresed = -1;
@@ -190,9 +239,36 @@ void keyPressed(){
     case 'l':
       keyPresed = 8;
       break;
-    case 'r':
+    case 'q':
+      keyPresed = 9;
+      break;
+    case 'w':
+      keyPresed = 10;
+      break;
+    case 'e':
+      keyPresed = 11;
+      break;
+    case 't':
+      keyPresed = 13;
+      break;
+    case 'y':
+      keyPresed = 14;
+      break;
+    case 'i':
+      keyPresed = 16;
+      break;
+    case 'o':
+      keyPresed = 17;
+      break;
+    case 'p':
+      keyPresed = 18;
+      break;
+    case 'b':
       resetSong();
       break;
+    case 'x':
+      freeMode = !freeMode;
+      resetSong();
   }
   if (keyCode == UP) {
     framesPerBeat+=5;
@@ -203,7 +279,7 @@ void keyPressed(){
     }
   }
     
-  if (keyPresed >= 0 && keyPresed < 9){
+  if (keyPresed >= 0 && keyPresed < notesS.length){
     keys[keyPresed]= true;
     out.playNote( 0.0, 0.9, new SineInstrument( Frequency.ofPitch( notesS[keyPresed] ).asHz() ) );
     if(keyPresed == currentKey) waiting = false;
