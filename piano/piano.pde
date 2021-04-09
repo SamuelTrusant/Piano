@@ -6,19 +6,18 @@ Minim minim;
 AudioOutput out;
 
 //Notas musicales en notación anglosajona
-//String [] notesS={"A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "B4", "G#3", "A#3", "", "C#4", "D#4", "", "F#4", "G#4", "A#4"};
 String [] notesS={"G3", "A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "F#3", "G#3", "A#3", "", "C#4", "D#4", "", "F#4", "G#4", "A#4"};
-//String[] keysChars = {"[a]","[s]","[d]","[f]","[g]","[h]","[j]","[k]","[l]","[q]","[w]","[e]","[r]","[t]","[y]","[u]","[i]","[o]","[p]"};
 char[] keysChars = {'a','s','d','f','g','h','j','k','l','q','w','e','r','t','y','u','i','o','p'};
 
 boolean [] keys = new boolean[notesS.length];
 
+//canción oda a la alegría
+int[] song = {5,6,7,7,6,5,4,3,3,4,5,5,4,4,5,6,7,7,6,5,4,3,3,4,5,4,3,3,4,5,3,4,5,6,5,3,4,5,6,5,4,3,4,0,5,5,6,7,7,6,5,4,3,3,4,5,4,3,3,3};
 //canción piratas del caribe
-int[] song =   {1,3,4,4,4,5,6,6,6,7,5,5,4,3,3,4,1,3,4,4,4,5,6,6,6,7,5,5,4,3,4,1,3,4,4,4,6,7,7,7,8,18,18,8,7,8,4,4,5,6,6,7,8,4,5,6,5,5,4,3,4,5,6,8,18,8,18,8,8,8,8,18,8,7,7,7,7,8,8,8,8,18,8,7,6,5,4,4,5,6,7,8,7,6,5,6,7,8,7,6,7,8,7,6,5,6,5,4,4,5,3,4,4,5,6,5,6,7,6,7,8,7,6,4,4,3,6,7,8,18,4,5,6,5,5,4,3,4,5,6,8,18,8,8,8,8,7,7,6,5,6,5,4,8,18,8,8,8,8,7,7,6,5,6,5,4,1,1};
-//char[] song = {'s','h'};
+//int[] song =   {1,3,4,4,4,5,6,6,6,7,5,5,4,3,3,4,1,3,4,4,4,5,6,6,6,7,5,5,4,3,4,1,3,4,4,4,6,7,7,7,8,18,18,8,7,8,4,4,5,6,6,7,8,4,5,6,5,5,4,3,4,5,6,8,18,8,18,8,8,8,8,18,8,7,7,7,7,8,8,8,8,18,8,7,6,5,4,4,5,6,7,8,7,6,5,6,7,8,7,6,7,8,7,6,5,6,5,4,4,5,3,4,4,5,6,5,6,7,6,7,8,7,6,4,4,3,6,7,8,18,4,5,6,5,5,4,3,4,5,6,8,18,8,8,8,8,7,7,6,5,6,5,4,8,18,8,8,8,8,7,7,6,5,6,5,4,1,1};
+
 boolean waiting = false;
 int currentKey = song[0];
-//char currentKey = song[0];
 
 int framesPerBeat = 50;
 int frame = 0;
@@ -110,6 +109,8 @@ void draw() {
   background(100);
   image(background,0,0);
   posy++;
+  textAlign(LEFT);
+  text("[x] -> modo libre / canción\n[b] -> reiniciar la canción\nflechas arriba y abajo -> cambiar velocidad canción",10,20);
   
   //Dibujamos las celdas/teclas blancas
   for (int i=0;i<9;i++){
@@ -167,7 +168,9 @@ void draw() {
   if(waiting == false){  
     //cuenta atrás para que empieze la canción
     if(step < 1){
+      textSize(60);
       text(""+abs(step),width/2,height/2);
+      textSize(14);
     }
     //antes de empezar la canción
     if(step < -1){
