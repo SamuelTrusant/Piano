@@ -8,13 +8,17 @@ AudioOutput out;
 //Notas musicales en notación anglosajona
 //String [] notesS={"A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "B4", "G#3", "A#3", "", "C#4", "D#4", "", "F#4", "G#4", "A#4"};
 String [] notesS={"G3", "A3", "B3", "C4", "D4", "E4", "F4", "G4", "A4", "F#3", "G#3", "A#3", "", "C#4", "D#4", "", "F#4", "G#4", "A#4"};
+//String[] keysChars = {"[a]","[s]","[d]","[f]","[g]","[h]","[j]","[k]","[l]","[q]","[w]","[e]","[r]","[t]","[y]","[u]","[i]","[o]","[p]"};
+char[] keysChars = {'a','s','d','f','g','h','j','k','l','q','w','e','r','t','y','u','i','o','p'};
+
 boolean [] keys = new boolean[notesS.length];
 
 //canción piratas del caribe
-int[] song =   {1,3,4,4,4,5,6,6,6,7,5,5,4,3,3,4,1,3,4,4,4,5,6,6,6,7,5,5,4,3,4,1,3,4,4,4,6,7,7,7,8,18,18,8,7,6,4,4,5,6,6,7,8,4,5,6,5,5,4,3,4,5,6,8,18,8,18,8,8,8,8,9,8,7,7,7,7,8,8,8,8,9,8,7,6,5,4,4,5,6,7,8,7,6,5,6,7,8,7,6,7,8,7,6,5,6,5,4,4,5,3,4,4,5,6,5,6,7,6,7,8,7,6,4,4,3,6,7,8,9,4,5,6,5,5,4,3,4,5,6,8,9,8,8,8,8,7,7,6,5,6,5,4,8,9,8,8,8,8,7,7,6,5,6,5,4,1,1};
-  
+int[] song =   {1,3,4,4,4,5,6,6,6,7,5,5,4,3,3,4,1,3,4,4,4,5,6,6,6,7,5,5,4,3,4,1,3,4,4,4,6,7,7,7,8,18,18,8,7,8,4,4,5,6,6,7,8,4,5,6,5,5,4,3,4,5,6,8,18,8,18,8,8,8,8,18,8,7,7,7,7,8,8,8,8,18,8,7,6,5,4,4,5,6,7,8,7,6,5,6,7,8,7,6,7,8,7,6,5,6,5,4,4,5,3,4,4,5,6,5,6,7,6,7,8,7,6,4,4,3,6,7,8,18,4,5,6,5,5,4,3,4,5,6,8,18,8,8,8,8,7,7,6,5,6,5,4,8,18,8,8,8,8,7,7,6,5,6,5,4,1,1};
+//char[] song = {'s','h'};
 boolean waiting = false;
 int currentKey = song[0];
+//char currentKey = song[0];
 
 int framesPerBeat = 50;
 int frame = 0;
@@ -117,7 +121,8 @@ void draw() {
     rect(i*50,height-100,50,100);
     textAlign(CENTER);
     fill(0);
-    text(notesS[i],i*50+25, height - 20);
+    text(notesS[i],i*50+25, height - 25);
+    text("["+keysChars[i]+"]",i*50+25, height - 10);
     fill(250);
   }
   
@@ -132,13 +137,15 @@ void draw() {
       rect((i%9)*50-15,height-100,30,60);
       textAlign(CENTER);
       fill(250);
-      text(notesS[i],(i%9)*50, height - 60);
+      text(notesS[i],(i%9)*50, height - 65);
+      text("["+keysChars[i]+"]",(i%9)*50, height - 50);
     }
     if(i==18){
       rect(width-15,height-100,30,60);
       textAlign(CENTER);
       fill(250);
-      text(notesS[i],width, height - 60);
+      text(notesS[i],width, height - 65);
+      text("["+keysChars[i]+"]",(i%9)*50, height - 50);
     }
     fill(250);
   }
@@ -212,6 +219,7 @@ void mousePressed() {
 void keyPressed(){
   int keyPresed = -1;
   switch(key){
+    /*
     case 'a':
       keyPresed = 0;
       break;
@@ -263,12 +271,24 @@ void keyPressed(){
     case 'p':
       keyPresed = 18;
       break;
+      */
     case 'b':
       resetSong();
       break;
     case 'x':
       freeMode = !freeMode;
       resetSong();
+      
+  }
+  
+  for(int i = 0; i < keysChars.length;i++){
+    if(i != 12 && i!= 15){
+      if(keysChars[i] == key){
+        keys[i]= true;
+        out.playNote( 0.0, 0.9, new SineInstrument( Frequency.ofPitch( notesS[i] ).asHz() ) );
+        if(i == currentKey) waiting = false;
+      }
+    }
   }
   if (keyCode == UP) {
     framesPerBeat+=5;
@@ -278,12 +298,12 @@ void keyPressed(){
       framesPerBeat-=5;
     }
   }
-    
+    /*
   if (keyPresed >= 0 && keyPresed < notesS.length){
     keys[keyPresed]= true;
     out.playNote( 0.0, 0.9, new SineInstrument( Frequency.ofPitch( notesS[keyPresed] ).asHz() ) );
     if(keyPresed == currentKey) waiting = false;
-  }
+  }*/
 }
 
 void keyReleased(){
