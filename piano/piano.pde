@@ -146,7 +146,7 @@ void draw() {
       textAlign(CENTER);
       fill(250);
       text(notesS[i],width, height - 65);
-      text("["+keysChars[i]+"]",(i%9)*50, height - 50);
+      text("["+keysChars[i]+"]",width-5, height - 50);
     }
     fill(250);
   }
@@ -162,7 +162,9 @@ void draw() {
   if(freeMode == true)return;
   //dibujamos las notas en pantalla
   for(Note note : notes){
+      fill(0,100,150);
       rect(note.posx,note.posy,note.sizex,note.sizey);
+      fill(250);
       if(waiting == false)  note.move((height-originNotePos-200)/framesPerBeat);
   }
   if(waiting == false){  
